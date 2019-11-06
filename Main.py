@@ -23,6 +23,9 @@ def read_balance():
     except SyntaxError:
         print("Error, balance file empty")
         balance = {}
+    except TypeError:
+        print("Error, balance file empty")
+        balance = {}
 
 
 def save_balance():
@@ -143,6 +146,7 @@ async def deduct(ctx, usr: discord.User, amount: int):
     elif usr_id in balance:
         # Amount normal, subtract usr balance.
         balance[usr_id]["UsrBalance"] -= amount
+        save_balance()
         # Award token to salary file
         award_salary(ctx.author, amount)
         await ctx.send("已记录")
@@ -150,7 +154,6 @@ async def deduct(ctx, usr: discord.User, amount: int):
         # When usr does not exist
         await ctx.send("User does not exist, creating new.")
         balance[usr_id] = {"UserName": usr_name + usr_dis, "UsrBalance": -amount}
-        print(balance)
         await ctx.send("Done! New balance:" + str(balance[usr_id]["UsrBalance"]))
         save_balance()
 
