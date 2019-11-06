@@ -57,6 +57,21 @@ def award_salary(user: discord.user, amount):
     save_salary()
 
 
+def gift_salary(user: discord.user, amount):
+    global salary
+    usr_id = user.id
+    usr_name = user.name
+    usr_dis = user.discriminator
+
+    if usr_id in salary:
+        salary[usr_id]["UsrBalance"] += amount * gift_ratio
+    else:
+        # User does not exist, creating new
+        salary[usr_id] = {"UserName": usr_name+usr_dis, "UsrBalance": amount * salary_ratio}
+
+    save_salary()
+
+
 def revoke_salary(user: discord.user, amount):
     global salary
     usr_id = user.id
@@ -127,6 +142,34 @@ async def deduct(ctx, usr: discord.User, amount: int):
         balance[usr_id]["UsrBalance"] -= amount
         # Award token to salary file
         award_salary(ctx.author, amount)
+        await ctx.send("已记录")
+    else:
+        # When usr does not exist
+        await ctx.send("User does not exist, creating new.")
+        balance[usr_id] = {"UserName": usr_name + usr_dis, "UsrBalance": -amount}
+        print(balance)
+        await ctx.send("Done! New balance:" + str(balance[usr_id]["UsrBalance"]))
+        save_balance()
+
+
+@bot.command(pass_context=True, aliases=['礼物'])
+@commands.has_any_role("管理", "接待", "男陪玩", "女陪玩")
+async def gift(ctx, usr: discord.User, amount: int):
+    """substract balance from user"""
+    usr_id = usr.id
+    usr_name = usr.name
+    usr_dis = usr.discriminator
+
+    await ctx.send("Salary goes to:" + ctx.author.name)
+
+    if amount <= 0:
+        # Amount <= 0, abort.
+        await ctx.send("Error: Amount must >= 1, abort.")
+    elif usr_id in balance:
+        # Amount normal, subtract usr balance.
+        balance[usr_id]["UsrBalance"] -= amount
+        # Award token to salary file
+        gift_salary(ctx.author, amount)
         await ctx.send("已记录")
     else:
         # When usr does not exist
@@ -230,6 +273,7 @@ async def paysalary(ctx):
     if ctx.author.id in salary:
         await ctx.send("salary balance for " + usr_name + "#" + str(usr_dis) + ": " + str(salary[usr_id]["UsrBalance"]) + " is now 0")
         salary[usr_id]["UsrBalance"] = 0
+        save_salary()
     else:
         # When usr does not exist
         await ctx.send("User does not exist, abort.")
