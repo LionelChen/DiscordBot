@@ -13,7 +13,10 @@ gift_ratio = 0.8
 
 
 def read_balance():
-    s = open('balance.txt', 'r', encoding="utf-8").read()
+    try:
+        s = open('balance.txt', 'r', encoding="utf-8").read()
+    except FileNotFoundError:
+        s = open('balance.txt', 'w', encoding="utf-8")
     global balance
     try:
         balance = eval(s)
@@ -299,4 +302,4 @@ async def _bot(ctx):
     """Is the bot cool?"""
     await ctx.send('Yes, the bot is cool.')
 
-bot.run('NjQxMzAyMTQxODc2NTY4MDY0.XcJAFA.xZM0RI1NJ_RiWl_RFXJSzooLzwI')
+bot.run('NjQxMzAyMTQxODc2NTY4MDY0.XcJK5g.wennaiON6AR_3TL_1J0DmE95TPE')
